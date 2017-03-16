@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+
+    <title>Demo tm-ascii-console</title>
+    <meta name="description" content="Demo tm-ascii-console">
+
+    <!-- Mobile -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Chrome / Android -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="black">
+    <link rel="icon" href="icon.png">
+
+    <!-- Safari / iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon-precomposed" href="apple-touch-icon.png">
+
+    <!-- Web Components -->
+    <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+
+    <link rel="import" href="../bower_components/polymer/polymer.html">
+    <link rel="import" href="../bower_components/paper-elements/paper-elements.html">
+    <link rel="import" href="../tm-ascii-console.html">
+
+  </head>
+  <body unresolved>
+
+    <template is="dom-bind" id="temp">
+      <style>
+        paper-input {
+          width:150px;
+        }
+        tm-ascii-console {
+          vertical-align: top;
+          padding:10px;
+          border:solid lightgrey 1px;
+          margin:10px;
+        }
+
+      </style>
+      <script>
+        function rotateLeft() {
+          var c = document.getElementById('map');
+          c.rotateLeft();
+        }
+        function rotateRight() {
+          var c = document.getElementById('map');
+          c.rotateRight();
+        }
+      </script>
+      <tm-ascii-console id="map" width="[[width]]" height="[[height]]" x="{{x}}" y="{{y}}"></tm-ascii-console>
+      <tm-ascii-console id="display" width="6" height="6" x="3" y="3"></tm-ascii-console>
+      <paper-input label="Width" value="{{width}}"></paper-input>
+      <paper-input label="Height" value="{{height}}"></paper-input>
+      <paper-input label="X" value="{{x}}"></paper-input>
+      <paper-input label="Y" value="{{y}}"></paper-input>
+      <paper-button raised onclick="rotateLeft()">Rotate Left</paper-button>
+      <paper-button raised onclick="rotateRight()">Rotate Right</paper-button>
+
+    </template>
+    <script>
+      var temp = document.getElementById('temp');
+      temp.width = 4;
+      temp.height = 4;
+      temp.x = 1;
+      temp.y = 1;
+    </script>
+  </body>
+</html>

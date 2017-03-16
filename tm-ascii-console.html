@@ -1,0 +1,161 @@
+
+<!--
+`tm-ascii-console`
+
+
+@demo demo/demo-tm-ascii-console.html
+-->
+
+<dom-module id="tm-ascii-console">
+  <template>
+    <style>
+      :host {
+        display: inline-block;
+      }
+      table {
+        /*width:200px;
+        height:200px;*/
+      }
+      td {
+        width:12px;
+        text-align: center;
+        vertical-align: center;
+      }
+    </style>
+
+    <table>
+      <template is="dom-repeat" items="[[data]]" as="row" index-as="r">
+        <tr>
+          <template is="dom-repeat" items="[[row]]" as="ch" index-as="c">
+            <td>[[printCharacter(ch,r,c,x,y)]]</td>
+          </template>
+        </tr>
+      </template>
+    </table>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'tm-ascii-console',
+
+      properties: {
+        data: {
+          type: Array,
+          notify: true,
+          value: [
+            ['0','0','0','0'],
+            ['1','1','1','1'],
+            ['2','2','2','2'],
+            ['3','3','3','3'],
+          ]
+        },
+        width: {
+          type: Number,
+          notify: true,
+          value: 4
+        },
+        height: {
+          type: Number,
+          notify: true,
+          value: 4
+        },
+        x: {
+          type: Number,
+          notify: true,
+          value: 2
+        },
+        y: {
+          type: Number,
+          notify: true,
+          value: 2
+        }
+      },
+      observers: [
+        'debug(data)',
+        'recreateData(width,height)'
+      ],
+      printCharacter: function(ch,r,c,x,y) {
+        return (c === x && r == y ? '%' : ch);
+      },
+      rotateLeft: function() {
+        if (this.width === this.height) {
+            this.data = reversed(zip(this.data));
+            this.rotatePositionLeft();
+        }
+      },
+      rotateRight: function() {
+        if (this.width === this.height) {
+          this.data = zip(reversed(this.data));
+          this.rotatePositionRight();
+        }
+      },
+      rotatePositionLeft: function() {
+          var newX = this.y;
+          var newY = this.width - this.x - 1;
+          this.x = newX;
+          this.y = newY;
+      },
+      rotatePositionRight: function() {
+          var newX = this.height - this.y - 1;
+          var newY = this.x;
+          this.x = newX;
+          this.y = newY;
+      },
+      recreateData: function(width,height) {
+        console.log('Width',width,'Height',height);
+        if (width !== undefined && width !== '' && height !== undefined && height !== '') {
+          console.log('Recreating data');
+          var newData = [];
+          var oldData = this.data;
+          for (var i=0; i<height; i++) {
+            var newRow = new Array(parseInt(width)).fill(5);
+            newData.push(newRow);
+          }
+          // Copy old data over new data
+          for (var r=0; r<(newData.length > oldData.length ? oldData.length : newData.length); r++)
+          {
+            for (var c=0; c<(newData[r].length > oldData[r].length ? oldData[r].length : newData[r].length); c++) {
+              newData[r][c] = oldData[r][c];
+            }
+          }
+          console.log('New Data', newData)
+          this.data = newData;
+        }
+      },
+      debug: function(object) {
+        console.log(object);
+      },
+      ready: function() {
+        console.log('Element tm-ascii-console has been created.');
+      }
+    });
+
+    var zip = function(arrays) {
+          // const length = Math.min(arrays.map(arr => arr.length));
+          // return Array.from({ length }, (value, index) => arrays.map((array => array[index])));
+      var result = [];
+      for (var c=0; c<arrays[0].length; c++) {
+        var newArray = [];
+        for (var r=0; r<arrays.length; r++) {
+          newArray.push(arrays[r][c]);
+        }
+        result.push(newArray);
+      }
+      return result;
+    };
+    var reversed = function(array) {
+      return array.reverse();
+    };
+
+    var set1 = [11,21,31,41];
+    var set2 = [12,22,32,42];
+    var set3 = [13,23,33,43];
+    var set4 = [14,24,34,44];
+
+    console.log('original: ', [set1,set2,set3,set4]);
+    console.log('reverset: ', reversed([set1,set2,set3,set4]));
+    console.log('  zipped: ', zip([set1,set2,set3,set4]));
+
+  </script>
+</dom-module>
