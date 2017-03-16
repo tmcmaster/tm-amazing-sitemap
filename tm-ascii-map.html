@@ -1,0 +1,110 @@
+<link rel="import" href="tm-ascii-display-behavior.html">
+
+<dom-module id="tm-ascii-map">
+  <template>
+    <style>
+      :host {
+        display: inline-block;
+      }
+      table {
+        /*width:200px;
+        height:200px;*/
+      }
+      td {
+        width:12px;
+        text-align: center;
+        vertical-align: center;
+      }
+    </style>
+
+    <table>
+      <template is="dom-repeat" items="[[data]]" as="row" index-as="r">
+        <tr>
+          <template is="dom-repeat" items="[[row]]" as="ch" index-as="c">
+            <td>[[printMapCharacter(ch,r,c,x,y)]]</td>
+          </template>
+        </tr>
+      </template>
+    </table>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'tm-ascii-map',
+
+      properties: {
+        x: {
+          type: Number,
+          notify: true,
+          value: 2
+        },
+        y: {
+          type: Number,
+          notify: true,
+          value: 2
+        }
+      },
+      behaviors: [
+        Polymer.TM.AsciiDisplayBehavior
+      ],
+      observers: [
+        'debug(data)'
+      ],
+      printMapCharacter: function(ch,r,c,x,y) {
+        return (c === x && r == y ? '%' : (ch === '1' ? '#' : '.'));
+      },
+      rotateLeft: function() {
+        if (this.width === this.height) {
+            this.data = reversed(zip(this.data));
+            this.rotatePositionLeft();
+        }
+      },
+      rotateRight: function() {
+        if (this.width === this.height) {
+          this.data = zip(reversed(this.data));
+          this.rotatePositionRight();
+        }
+      },
+      rotatePositionLeft: function() {
+          var newX = this.y;
+          var newY = this.width - this.x - 1;
+          this.x = newX;
+          this.y = newY;
+      },
+      rotatePositionRight: function() {
+          var newX = this.height - this.y - 1;
+          var newY = this.x;
+          this.x = newX;
+          this.y = newY;
+      },
+      debug: function(object) {
+        console.log(object);
+      },
+      ready: function() {
+        console.log('Element tm-ascii-map has been created.');
+        this.data = [
+          ['1','1','1','1'],
+          ['0','0','1','1'],
+          ['1','0','0','1'],
+          ['1','1','0','1'],
+        ];
+      }
+    });
+
+    var zip = function(arrays) {
+      var result = [];
+      for (var c=0; c<arrays[0].length; c++) {
+        var newArray = [];
+        for (var r=0; r<arrays.length; r++) {
+          newArray.push(arrays[r][c]);
+        }
+        result.push(newArray);
+      }
+      return result;
+    };
+    var reversed = function(array) {
+      return array.reverse();
+    };
+  </script>
+</dom-module>

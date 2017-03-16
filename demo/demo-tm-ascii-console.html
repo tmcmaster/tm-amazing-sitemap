@@ -36,31 +36,51 @@
         }
         tm-ascii-console {
           vertical-align: top;
-          padding:10px;
-          border:solid lightgrey 1px;
-          margin:10px;
         }
 
       </style>
       <script>
         function rotateLeft() {
-          var c = document.getElementById('map');
+          var c = document.getElementById('console');
           c.rotateLeft();
         }
         function rotateRight() {
-          var c = document.getElementById('map');
+          var c = document.getElementById('console');
           c.rotateRight();
         }
+        function addToView() {
+          var temp = document.getElementById('temp');
+          var c = document.getElementById('console');
+          console.log('Adding to View.', temp.c, temp.r, temp.ch)
+          c.setCharacter(temp.c, temp.r, temp.ch);
+        }
       </script>
-      <tm-ascii-console id="map" width="[[width]]" height="[[height]]" x="{{x}}" y="{{y}}"></tm-ascii-console>
-      <tm-ascii-console id="display" width="6" height="6" x="3" y="3"></tm-ascii-console>
-      <paper-input label="Width" value="{{width}}"></paper-input>
-      <paper-input label="Height" value="{{height}}"></paper-input>
-      <paper-input label="X" value="{{x}}"></paper-input>
-      <paper-input label="Y" value="{{y}}"></paper-input>
-      <paper-button raised onclick="rotateLeft()">Rotate Left</paper-button>
-      <paper-button raised onclick="rotateRight()">Rotate Right</paper-button>
+      <tm-ascii-console id="console" width="[[width]]" height="[[height]]" x="{{x}}" y="{{y}}"></tm-ascii-console>
+      <!-- <tm-ascii-console id="display" width="6" height="6" x="3" y="3"></tm-ascii-console> -->
 
+      <paper-card heading="Change Map">
+        <div class="card-content">
+          <paper-input label="Width" value="{{width}}"></paper-input>
+          <paper-input label="Height" value="{{height}}"></paper-input>
+          <paper-input label="X" value="{{x}}"></paper-input>
+          <paper-input label="Y" value="{{y}}"></paper-input>
+        </div>
+        <div class="card-actions">
+          <paper-button raised onclick="rotateLeft()">Rotate Left</paper-button>
+          <paper-button raised onclick="rotateRight()">Rotate Right</paper-button>
+        </div>
+      </paper-card>
+
+      <paper-card heading="Change View">
+        <div class="card-content">
+          <paper-input label="Row" value="{{r}}"></paper-input>
+          <paper-input label="Column" value="{{c}}"></paper-input>
+          <paper-input label="Character" value="{{ch}}"></paper-input>
+        </div>
+        <div class="card-actions">
+          <paper-button raised onclick="addToView()">Add to View</paper-button>
+        </div>
+      </paper-card>
     </template>
     <script>
       var temp = document.getElementById('temp');
@@ -68,6 +88,9 @@
       temp.height = 4;
       temp.x = 1;
       temp.y = 1;
+      temp.r = 1;
+      temp.c = 1;
+      temp.ch = 1;
     </script>
   </body>
 </html>

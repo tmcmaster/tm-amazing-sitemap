@@ -1,0 +1,51 @@
+<link rel="import" href="tm-ascii-display-behavior.html">
+
+<dom-module id="tm-ascii-view">
+  <template>
+    <style>
+      :host {
+        display: inline-block;
+      }
+      table {
+        /*width:200px;
+        height:200px;*/
+      }
+      td {
+        width:12px;
+        height:12px;
+        text-align: center;
+        vertical-align: center;
+      }
+    </style>
+
+    <table>
+      <template is="dom-repeat" items="[[data]]" as="row" index-as="r">
+        <tr>
+          <template is="dom-repeat" items="[[row]]" as="ch" index-as="c">
+            <td>[[getCharacter(data.*,r,c)]]</td>
+          </template>
+        </tr>
+      </template>
+    </table>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'tm-ascii-view',
+      properties: {
+      },
+      behaviors: [
+        Polymer.TM.AsciiDisplayBehavior
+      ],
+      observers: [
+      ],
+      getCharacter: function(data,x,y) {
+        return this.data[x][y];
+      },
+      ready: function() {
+        console.log('Element tm-ascii-view has been created.');
+        //this.setData(new Array(10).fill(new Array(10).fill('A')));
+      }
+    });
+  </script>
+</dom-module>

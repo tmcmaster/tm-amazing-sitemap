@@ -1,0 +1,71 @@
+<script>
+  (function(Polymer) {
+    Polymer.TM = Polymer.TM || {};
+    Polymer.TM.AsciiDisplayBehavior = {
+      properties: {
+        data: {
+          type: Array,
+          notify: true,
+          value: [
+            ['1','1','1','1'],
+            ['0','0','1','1'],
+            ['1','0','0','1'],
+            ['1','1','0','1'],
+          ]
+        },
+        width: {
+          type: Number,
+          notify: true,
+          value: 4
+        },
+        height: {
+          type: Number,
+          notify: true,
+          value: 4
+        }
+      },
+      observers: [
+        'dataHasChanged(data)',
+        'recreateData(width,height)'
+      ],
+      setCharacter: function(x,y,ch) {
+        console.log('View adding to View.', x, y, ch);
+        //this.data[x][y] = ch;
+        //this.notifyPath('data.' + x, ch);
+        this.set('data.' + y + '.' + x, ch);
+      },
+      setData: function(data) {
+        this.data = data;
+      },
+      recreateData: function(width,height) {
+        console.log('Width',width,'Height',height);
+        if (width !== undefined && width !== '' && height !== undefined && height !== '') {
+          console.log('Recreating data');
+          var newData = [];
+          var oldData = this.data;
+          for (var i=0; i<height; i++) {
+            var newRow = new Array(parseInt(width)).fill(5);
+            newData.push(newRow);
+          }
+          // Copy old data over new data
+          for (var r=0; r<(newData.length > oldData.length ? oldData.length : newData.length); r++)
+          {
+            for (var c=0; c<(newData[r].length > oldData[r].length ? oldData[r].length : newData[r].length); c++) {
+              newData[r][c] = oldData[r][c];
+            }
+          }
+          console.log('New Data', newData)
+          this.data = newData;
+        }
+      },
+      dataHasChanged: function(data) {
+        console.log('Display data has changed.', data);
+      },
+      ready: function() {
+        console.log('Element tm-ascii-display-behavior has been created.');
+        this.setData(new Array(10).fill(new Array(10).fill('B')));
+        this.recreateData(10,10);
+      }
+    };
+  })(window.Polymer);
+</script>
