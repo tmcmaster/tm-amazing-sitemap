@@ -1,0 +1,156 @@
+
+<dom-module id="tm-ascii-viewport">
+  <template>
+    <style>
+      :host {
+        display: inline-block;
+      }
+      td {
+        height:12px;
+        width:12px;
+        text-align: center;
+        vertical-align: center;
+      }
+      td.type-person {
+        color: blue;
+      }
+    </style>
+    <table>
+      <template is="dom-repeat" items="[[_getViewportData(data,viewportOffsetX,viewportOffsetY,viewportWidth,viewportHeight,xPos,yPos)]]" as="row">
+        <tr>
+          <template is="dom-repeat" items="[[row]]" as="item">
+            <td class$="type-[[item.type]]" title="([[item.x]],[[item.y]])">[[item.value]]</td>
+          </template>
+        </tr>
+      </template>
+    </table>
+  </template>
+  <script>
+    (function(Polymer) {
+      Polymer({
+        is: 'tm-ascii-viewport',
+        properties: {
+          data: {
+            type:Array,
+            notify:true,
+            value: [
+              ['A','B','C'],
+              ['a','b','c'],
+              ['1','2','3']
+            ]
+          },
+          xPos: {
+            type: Number,
+            notify: true,
+            value: 2
+          },
+          yPos: {
+            type: Number,
+            notify: true,
+            value: 2
+          },
+          viewportWidth: {
+            type: Number,
+            notify: true,
+            value: 5
+          },
+          viewportHeight: {
+            type: Number,
+            notify: true,
+            value: 5
+          },
+          viewportOffsetX: {
+            type: Number,
+            notify: true,
+            computed: '_calculateOffsetX(xPos,viewportWidth)'
+          },
+          viewportOffsetY: {
+            type: Number,
+            notify: true,
+            computed: '_calculateOffsetY(yPos,viewportHeight)'
+          }
+        },
+        observers: [
+          'debug(data)'
+        ],
+        moveForward: function() {
+          if (this._canMove(this.xPos,this.yPos-1)) {
+            this.yPos--;
+          }
+        },
+        moveBackward: function() {
+          if (this._canMove(this.xPos,this.yPos+1)) {
+            this.yPos++;
+          }
+        },
+        moveRight: function() {
+          if (this._canMove(this.xPos+1,this.yPos)) {
+            this.xPos++;
+          }
+        },
+        moveLeft: function() {
+          if (this._canMove(this.xPos-1,this.yPos)) {
+            this.xPos--;
+          }
+        },
+        _canMove: function(newX,newY) {
+          if (newX<0 || newX>(this.data.length-1) || newY<0 || newY>(this.data[0].length-1)) {
+            return false;
+          } else if (this.data[newY][newX] === '0') {
+            return true;
+          } else {
+            return false;
+          }
+
+        },
+        _calculateOffsetX: function(xPos,viewportWidth) {
+          return (xPos-Math.floor(viewportWidth/2))
+        },
+        _calculateOffsetY: function(yPos,viewportHeight) {
+          return (yPos-Math.floor(viewportHeight/2))
+        },
+        _getViewportData: function(data,viewportOffsetX,viewportOffsetY,viewportWidth,viewportHeight,xPos,yPos) {
+          var viewportData = [];
+          for (var r=viewportOffsetY; r<viewportOffsetY+viewportHeight; r++) {
+            var viewportRow = [];
+            for (var c=viewportOffsetX; c<viewportOffsetX+viewportWidth; c++) {
+
+              var item = getDataValue(data,c,r,xPos,yPos);
+
+              viewportRow.push(item);
+            }
+            viewportData.push(viewportRow);
+          }
+          return viewportData;
+        },
+        _getCharacterValue: function(ch,r,c,x,y) {
+          //console.log('--- Getting Character: ',r,c,ch)
+          return (c === x && r == y ? '%' : (ch === '1' ? '#' : ' '));
+        },
+        _getCharacterType: function(ch,r,c,x,y) {
+          //console.log('--- Getting Character: ',r,c,ch)
+          return (c === x && r == y ? 'person' : 'plain');
+        },
+        debug: function(object) {
+          console.log(object);
+        },
+        ready: function() {
+          console.log('Element tm-ascii-viewport has been created.');
+        }
+      });
+    })(window.Polymer);
+
+    function getDataValue(data,x,y,xPos,yPos) {
+      var item = { x:x, y:y, type: 'normal'};
+      if (x<0 || x>(data.length-1) || y<0 || y>(data[0].length-1)) {
+        item.value = ' ';
+      } else if (x===xPos && y===yPos) {
+        item.type = 'person';
+        item.value = '%';
+      } else {
+        item.value = (data[y][x] === '1' ? '#' : ' ');
+      }
+      return item;
+    }
+  </script>
+</dom-module>

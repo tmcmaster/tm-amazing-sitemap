@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+
+    <title>Demo tm-ascii-map</title>
+    <meta name="description" content="Demo tm-ascii-map">
+
+    <!-- Mobile -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Chrome / Android -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="black">
+    <link rel="icon" href="icon.png">
+
+    <!-- Safari / iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon-precomposed" href="apple-touch-icon.png">
+
+    <!-- Web Components -->
+    <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+
+    <link rel="import" href="../bower_components/polymer/polymer.html">
+    <link rel="import" href="../bower_components/paper-elements/paper-elements.html">
+    <link rel="import" href="../tm-ascii-map.html">
+    <link rel="import" href="../tm-ascii-viewport.html">
+    <link rel="import" href="../tm-ascii-display.html">
+    <style>
+      tm-ascii-map,tm-ascii-viewport,tm-ascii-display {
+        border: solid lightgrey 1px;
+        padding:10px;
+      }
+    </style>
+
+    <dom-module id="demo-tm-ascii-map">
+      <template>
+        <style>
+          :host {
+            display: block;
+          }
+          paper-input {
+            display: inline-block;
+            width:100px;
+          }
+          /*tm-ascii-map, tm-ascii-viewport, paper-card {
+            vertical-align: top;
+            clear:both;
+            float:left;
+          }*/
+          div.components,paper-card {
+            vertical-align: top;
+            clear:both;
+            float:left;
+            margin-top:20px;
+          }
+          tm-ascii-viewport,tm-ascii-map {
+            clear:both;
+            float:left;
+          }
+          div.components > * {
+            vertical-align: top;
+          }
+        </style>
+        <h3>Testing the tm-ascii-map element</h3>
+        <paper-card>
+          <div class="card-content">
+            <paper-input label="Width" value="{{width}}"></paper-input>
+            <paper-input label="Height" value="{{height}}"></paper-input>
+            <paper-input label="X" value="{{x}}"></paper-input>
+            <paper-input label="Y" value="{{y}}"></paper-input>
+
+            <paper-dropdown-menu label="Select Map">
+              <paper-listbox class="dropdown-content" selected="{{map}}">
+                <paper-item>10x10</paper-item>
+                <paper-item>5x5</paper-item>
+                <paper-item>2x2</paper-item>
+                <paper-item>1x1</paper-item>
+              </paper-listbox>
+            </paper-dropdown-menu>
+          </div>
+          <div class="card-actions">
+            <paper-button raised on-tap="rotateLeft">Rotate Left</paper-button>
+            <paper-button raised on-tap="rotateRight">Rotate Right</paper-button>
+            <paper-button raised on-tap="moveForward">Move Forward</paper-button>
+            <paper-button raised on-tap="moveBackward">Move Backward</paper-button>
+            <paper-button raised on-tap="moveRight">Move Right</paper-button>
+            <paper-button raised on-tap="moveLeft">Move Left</paper-button>
+          </div>
+        </paper-card>
+        <div class="components">
+          <tm-ascii-map id="map" data="{{data}}" width="{{width}}" height="{{height}}" x="{{x}}" y="{{y}}"></tm-ascii-map>
+          <tm-ascii-viewport id="viewport" data="{{data}}" x-pos="{{x}}" y-pos="{{y}}" viewport-width="[[width]]" viewport-height="[[height]]"></tm-ascii-viewport>
+          <tm-ascii-display id="display" width="50" height="30"></tm-ascii-display>
+        </div>
+      </template>
+      <script>
+        var data1 = [
+          [ '1', '1', '1', '1', '1', '1', '1', '1', '1', '1' ],
+          [ '1', '0', '0', '1', '0', '0', '0', '0', '1', '1' ],
+          [ '1', '1', '0', '1', '0', '1', '1', '0', '1', '1' ],
+          [ '1', '1', '0', '0', '0', '0', '1', '0', '1', '1' ],
+          [ '1', '1', '1', '1', '0', '1', '1', '0', '0', '1' ],
+          [ '1', '0', '0', '1', '0', '1', '1', '1', '0', '1' ],
+          [ '1', '0', '1', '0', '0', '1', '1', '1', '0', '1' ],
+          [ '1', '0', '0', '0', '1', '1', '0', '0', '0', '1' ],
+          [ '1', '1', '1', '0', '0', '0', '0', '1', '1', '1' ],
+          [ '1', '1', '1', '1', '1', '1', '1', '1', '1', '1' ]
+        ];
+
+        var data2 = [
+          [ '1', '1', '1', '1', '1' ],
+          [ '1', '0', '0', '1', '0' ],
+          [ '1', '1', '0', '1', '0' ],
+          [ '1', '1', '0', '0', '0' ],
+          [ '1', '1', '1', '1', '0' ]
+        ];
+
+        var data3 = [
+          ['1', '0'],
+          ['0', '1']
+        ];
+
+        var data4 = [
+          ['1']
+        ];
+
+        var maps = [data1, data2, data3, data4];
+
+        (function(Polymer) {
+          Polymer({
+            is: 'demo-tm-ascii-map',
+            properties: {
+              data: { type:String, notify:true, value: data1 },
+              height: { type: String, notify: true, value: 10 },
+              width: { type: String, notify: true, value: 10 },
+              x: { type: String, notify: true, value: 1 },
+              y: { type: String, notify: true, value: 1 },
+              map: { type: String, notify: true, value: 0 },
+            },
+            observers: [
+              'debug(data)',
+              'mapSelected(map)'
+            ],
+            mapSelected: function(map) {
+              this.set('data', maps[map]);
+            },
+            rotateLeft: function() {
+              this.$.map.rotateLeft();
+            },
+            rotateRight: function() {
+              this.$.map.rotateRight();
+            },
+            moveForward: function() { this.$.viewport.moveForward(); },
+            moveBackward: function() { this.$.viewport.moveBackward() },
+            moveRight: function() { this.$.viewport.moveRight(); },
+            moveLeft: function() { this.$.viewport.moveLeft() },
+            keyPressed: function(e) { console.log('Key Pressed: ', e)},
+            debug: function(object) {
+              console.log(object);
+            },
+            _calculateRows: function(data) {
+              var rows = [[],[],[]];
+              if (yPos === 0) {
+                return rows;
+              }
+              for (var r=this.yPos-1; i<0; r--) {
+                if (this.xPos === 0)
+                {
+                  rows[0].push()
+                }
+                for (var i=0; i<3; i++) {
+                  rows[i].push(this.data[r][this.xPos-1+i]);
+                }
+              }
+            },
+            ready: function() {
+              console.log('Element demo-tm-ascii-map has been created.');
+              var self = this;
+              this.keyMap = {
+                37: function() {self.rotateRight();},
+                38: function() {self.moveForward();},
+                39: function() {self.rotateLeft();},
+                40: function() {self.moveBackward();}
+              };
+              document.onkeyup = function(e) {
+                console.log('KeyMap: ', self.keyMap);
+                if (e.keyCode in self.keyMap) {
+                  self.keyMap[e.keyCode]();
+                }
+              }
+            }
+          });
+        })(window.Polymer);
+      </script>
+    </dom-module>
+  </head>
+  <body unresolved>
+      <demo-tm-ascii-map></demo-tm-ascii-map>
+  </body>
+</html>

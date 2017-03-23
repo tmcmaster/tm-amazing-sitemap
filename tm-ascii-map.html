@@ -6,14 +6,14 @@
       :host {
         display: inline-block;
       }
-      table {
-        /*width:200px;
-        height:200px;*/
-      }
       td {
+        height:12px;
         width:12px;
         text-align: center;
         vertical-align: center;
+      }
+      td.type-person {
+        color: blue;
       }
     </style>
 
@@ -21,7 +21,7 @@
       <template is="dom-repeat" items="[[data]]" as="row" index-as="r">
         <tr>
           <template is="dom-repeat" items="[[row]]" as="ch" index-as="c">
-            <td>[[printMapCharacter(ch,r,c,x,y)]]</td>
+            <td class$="type-[[_getCharacterType(ch,r,c,x,y)]]">[[_getCharacterValue(ch,r,c,x,y)]]</td>
           </template>
         </tr>
       </template>
@@ -51,28 +51,33 @@
       observers: [
         'debug(data)'
       ],
-      printMapCharacter: function(ch,r,c,x,y) {
-        return (c === x && r == y ? '%' : (ch === '1' ? '#' : '.'));
-      },
       rotateLeft: function() {
         if (this.width === this.height) {
             this.data = reversed(zip(this.data));
-            this.rotatePositionLeft();
+            this._rotatePositionLeft();
         }
       },
       rotateRight: function() {
         if (this.width === this.height) {
           this.data = zip(reversed(this.data));
-          this.rotatePositionRight();
+          this._rotatePositionRight();
         }
       },
-      rotatePositionLeft: function() {
+      _getCharacterValue: function(ch,r,c,x,y) {
+        //console.log('--- Getting Character: ',r,c,ch)
+        return (c === x && r == y ? '%' : (ch === '1' ? '#' : ' '));
+      },
+      _getCharacterType: function(ch,r,c,x,y) {
+        //console.log('--- Getting Character: ',r,c,ch)
+        return (c === x && r == y ? 'person' : 'plain');
+      },
+      _rotatePositionLeft: function() {
           var newX = this.y;
           var newY = this.width - this.x - 1;
           this.x = newX;
           this.y = newY;
       },
-      rotatePositionRight: function() {
+      _rotatePositionRight: function() {
           var newX = this.height - this.y - 1;
           var newY = this.x;
           this.x = newX;
@@ -83,12 +88,6 @@
       },
       ready: function() {
         console.log('Element tm-ascii-map has been created.');
-        this.data = [
-          ['1','1','1','1'],
-          ['0','0','1','1'],
-          ['1','0','0','1'],
-          ['1','1','0','1'],
-        ];
       }
     });
 
@@ -103,6 +102,7 @@
       }
       return result;
     };
+
     var reversed = function(array) {
       return array.reverse();
     };

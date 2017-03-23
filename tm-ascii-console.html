@@ -23,7 +23,7 @@
       }
     </style>
 
-    <tm-ascii-map id="map" width="[[width]]" height="[[height]]" x="{{x}}" y="{{y}}"></tm-ascii-map>
+    <tm-ascii-map id="map" data="{{data}}" width="[[width]]" height="[[height]]" x="{{x}}" y="{{y}}"></tm-ascii-map>
     <tm-ascii-view id="view" width="30" height="20"></tm-ascii-view>
 
   </template>
@@ -34,15 +34,16 @@
       is: 'tm-ascii-console',
 
       properties: {
+        data: [],
         width: {
           type: Number,
           notify: true,
-          value: 4
+          value: 10
         },
         height: {
           type: Number,
           notify: true,
-          value: 4
+          value: 10
         },
         x: {
           type: Number,
@@ -71,11 +72,45 @@
         console.log('Console adding to View.', x, y, ch);
         this.$.view.setCharacter(x,y,ch);
       },
+      keyPressed: function(e) {
+        var key = 'k';
+        if (key === 'k') { // UP
+          if (xPos < (statesLeft.length-2)) {
+              xPos += 1;
+              this.clearView();
+              this.printRow(y,x,height, width, sizes, statesLeft,statesRight, xPos)
+          }
+        } else if (key === 'j') { // DOWN
+          if (xPos > 1) {
+              xPos -= 1;
+              this.clearView();
+              this.printRow(y,x,height, width, sizes, statesLeft,statesRight, xPos)
+          }
+        } else if (key === 'h') { // LEFT
+          // matrix = rotateMatrixLeft(matrix)
+          // xPos,yPos = rotatePositionLeft(xPos,yPos,10,10)
+          // #stdscr.addstr(2,2, "xPos(%d), yPos(%d), l(%d), width(%d), height(%d)" % (xPos,yPos,l,len(matrix),len(matrix)))
+          // #stdscr.refresh()
+          // statesLeft = matrix[yPos-1]
+          // statesRight = matrix[yPos+1];
+          // stdscr.clear();
+          // printRow(y,x,height, width, sizes, statesLeft,statesRight, xPos)
+        } else if (key === 'l') { // RIGHT
+          // matrix = rotateMatrixRight(matrix)
+          // xPos,yPos = rotatePositionRight(xPos,yPos,10,10)
+          // #stdscr.addstr(2,2, "xPos(%d), yPos(%d), width(%d), height(%d)" % (xPos,yPos,len(matrix),len(matrix)))
+          // statesLeft = matrix[yPos-1]
+          // statesRight = matrix[yPos+1];
+          // stdscr.clear();
+          // printRow(y,x,height, width, sizes, statesLeft,statesRight, xPos)
+        }
+      },
       debug: function(object) {
         console.log(object);
       },
       ready: function() {
         console.log('Element tm-ascii-console has been created.');
+        this.$.map.setData(this.data);
       }
     });
   </script>
