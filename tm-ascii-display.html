@@ -25,7 +25,7 @@
       <template is="dom-repeat" items="[[data]]" as="row" index-as="r">
         <tr>
           <template is="dom-repeat" items="[[row]]" as="ch" index-as="c">
-            <td>[[_getCharacterValue(c,r)]]</td>
+            <td>[[_getCharacterValue(c,r,data)]]</td>
           </template>
         </tr>
       </template>
@@ -33,6 +33,7 @@
   </template>
   <script>
     (function(Polymer) {
+      // which bit of a block should be drawn
       const FRONT_LEFT = 1;
       const FRONT_RIGHT = 2;
       const FRONT_TOP = 4;
@@ -42,15 +43,21 @@
       const EDGE_BOTTOM = 64
       const MIRROR = 128;
 
-      const BEFORE_AND_AFTER = 0;
-      const BEFORE_NOT_AFTER = BACK_RIGHT;
-      const AFTER_NOT_BEFORE = FRONT_RIGHT|FRONT_TOP|FRONT_BOTTOM;
-      const NOT_BEFORE_OR_AFTER = FRONT_RIGHT|FRONT_TOP|FRONT_BOTTOM|BACK_RIGHT;
+      //
+      // const BEFORE_AND_AFTER = 0;
+      // const BEFORE_NOT_AFTER = BACK_RIGHT;
+      // const AFTER_NOT_BEFORE = FRONT_RIGHT|FRONT_TOP|FRONT_BOTTOM;
+      // const NOT_BEFORE_OR_AFTER = FRONT_RIGHT|FRONT_TOP|FRONT_BOTTOM|BACK_RIGHT;
 
       Polymer({
         is: 'tm-ascii-display',
         properties: {
           data: {
+            type:Array,
+            notify:true,
+            value: [[]]
+          },
+          fb : {
             type:Array,
             notify:true,
             value: [[]]
@@ -69,9 +76,9 @@
             type:Object,
             notify: true,
             value: {
-              left: [1,1,1,0,1],
+              left: [1,0,1,0,1],
               center: [0,0,0,0,0],
-              right: [1,0,1,1,0]
+              right: [1,1,1,1,1]
             }
           }
         },
@@ -85,39 +92,64 @@
           // var blockSides = FRONT_RIGHT|FRONT_TOP|FRONT_BOTTOM|BACK_RIGHT;
           // this._drawBlock(10,28,20,5,3,blockSides)
           // this._drawBlock(40,28,20,5,3,blockSides|MIRROR)
-
-          this._drawRow();
+          console.log('-------- Blocks have changed.');
+          //this._clearDisplay();
+          this._drawRow(blocks);
+        },
+        _clearDisplay: function() {
+          console.log('Clearing the display.')
+          for (r in this.data) {
+            for (c in this.data[r]) {
+              this.set('data.'+r+'.'+c,' ');
+              //this.data[r][c] = ' ';
+            }
+          }
         },
         setChar: function(x,y,ch) {
-          this.set('data.'+y+'.'+x, ch);
+          this.set('fb.'+y+'.'+x, ch);
         },
-        _drawRow: function() {
+        _drawRow: function(blocks) {
+          console.log('Attepting to draw the row of blocks.');
+          if (blocks === undefined || blocks.left === undefined) {
+            console.log('There was no blocks data.');
+            return;
+          }
+
           const blockSizes = {
-            '0': {x:18,y:28,height:26,width:5,depth:3},
-            '1': {x:15,y:25,height:20,width:3,depth:3},
-            '2': {x:12,y:22,height:14,width:3,depth:3},
-            '3': {x:9,y:19,height:8,width:3,depth:3},
-            '4': {x:6,y:16,height:2,width:2,depth:1}
+            '0': {x:18,y:29,height:28,width:6,depth:4},
+            '1': {x:14,y:25,height:20,width:5,depth:4},
+            '2': {x:10,y:21,height:12,width:4,depth:3},
+            '3': {x:7,y:18,height:6,width:3,depth:2},
+            '4': {x:5,y:16,height:2,width:2,depth:1}
+
+
+            // '0': {x:18,y:28,height:26,width:5,depth:3},
+            // '1': {x:15,y:25,height:20,width:3,depth:3},
+            // '2': {x:12,y:22,height:14,width:3,depth:3},
+            // '3': {x:9,y:19,height:8,width:3,depth:3},
+            // '4': {x:6,y:16,height:2,width:2,depth:1}
           };
-          console.log('-- About to print a number of rows: ' + this.blocks.left.length)
-          // left side
-          for (var i=0; i<this.blocks.left.length; i++) {
+          console.log('-- About to print a number of rows: ' + blocks.left.length)
+          for (var i=0; i<blocks.left.length; i++) {
             var block = blockSizes[i];
+
             if (block.height > 0) {
               console.log('Printing row: ' + (i+1));
-              var blockSides = getBlockSides(this.blocks.left,i);
-              this._drawBlock(25-block.x,block.y,block.height,block.width,block.depth,blockSides)
+              // left side
+              var blockSides = getBlockSides(blocks.left,i,blocks.center[i]);
+              this._drawBlock(24-block.x,block.y,block.height,block.width,block.depth,blockSides);
+              // right side
+              var blockSides = getBlockSides(blocks.right,i,blocks.center[i]);
+              this._drawBlock(24+block.x,block.y,block.height,block.width,block.depth,blockSides|MIRROR);
+              //center
+              if (blocks.center[i] === 1) {
+                var blockSides = getBlockSides(blocks.center,i);
+                this._drawBlock(24-block.x,block.y,block.height,block.x*2+1,block.depth,FRONT_LEFT|FRONT_RIGHT|FRONT_TOP|FRONT_BOTTOM|MIRROR);
+                break;
+              }
             }
           }
-          // right side
-          for (var i=0; i<this.blocks.right.length; i++) {
-            var block = blockSizes[i];
-            if (block.height > 0) {
-              console.log('Printing row: ' + (i+1));
-              var blockSides = getBlockSides(this.blocks.right,i);
-              this._drawBlock(25+block.x,block.y,block.height,block.width,block.depth,blockSides|MIRROR)
-            }
-          }
+          this._flushFrameBuffer();
         },
         _drawBlock: function(x,y,height,width,depth,sides) {
 
@@ -170,7 +202,7 @@
             }
           }
         },
-        _getCharacterValue: function(x,y) {
+        _getCharacterValue: function(x,y,data) {
           return this.data[y][x];
         },
         _sizeHasChanged: function(width,height) {
@@ -180,16 +212,17 @@
           }
 
           console.log('Recreating data');
-          // TODO this precedural approach could be done with fill and map functions ??
-          var newData = [];
-          // create the new array
-          for (var i=0; i<height; i++) {
-            var newRow = new Array(parseInt(width)).fill(' ');
-            newData.push(newRow);
-          }
-          // Store the new data, and notify that the data has changed
-          console.log('New Data', newData)
+          var newData = Array(this.height).fill().map(()=> new Array(this.width).fill(' '));
+          var newFB = Array(this.height).fill().map(()=> new Array(this.width).fill(' '));
           this.set('data', newData);
+          this.set('fb', newFB);
+        },
+        _flushFrameBuffer: function() {
+          var newFB = Array(this.height).fill().map(()=> new Array(this.width).fill(' '));
+          //var newFB = this.data;
+          this.set('data', this.fb);
+          //clearData(newFB, ' ');
+          this.set('fb', newFB);
         },
         debug: function(object) {
           console.log(object);
@@ -199,25 +232,48 @@
         }
       });
 
-      function getBlockSides(rowArray, i) {
-        var sides = (rowArray[i] === 1 ? EDGE_TOP|EDGE_BOTTOM : NOT_BEFORE_OR_AFTER);
+      function clearData(array, ch) {
+        for (r in array) {
+          for (c in array[r]) {
+            array[r][c] = ch;
+          }
+        }
+      }
+
+      function getBlockSides(rowArray, i, center) {
+        if (rowArray[i] === 0) {
+          return 0;
+        }
+        var sides = (rowArray[i] === 1 ? EDGE_TOP|EDGE_BOTTOM : FRONT_RIGHT|FRONT_TOP|FRONT_BOTTOM|BACK_RIGHT);
         if (i === 0 && rowArray.length > 1) {
-          sides |= (rowArray[1] === 1 ? AFTER_NOT_BEFORE : NOT_BEFORE_OR_AFTER);
+          // in first item and there are more items
+          sides |= (rowArray[1] === 1 ? FRONT_RIGHT|FRONT_TOP|FRONT_BOTTOM : FRONT_RIGHT|FRONT_TOP|FRONT_BOTTOM|BACK_RIGHT);
         } else if (i === (rowArray.length-1) && rowArray.length > 1) {
-          sides |= (rowArray[i-1] === 1 ? BEFORE_NOT_AFTER : NOT_BEFORE_OR_AFTER)
+          // in the last item and there were other items
+          sides |= (rowArray[i-1] === 1 ? BACK_RIGHT : FRONT_RIGHT|FRONT_TOP|FRONT_BOTTOM|BACK_RIGHT)
         } else {
           if (rowArray[i-1] === 1 && rowArray[i+1] === 1) {
-            sides |= BEFORE_AND_AFTER;
+            // there is a block before and after
+            //sides |= 0;
           } else if (rowArray[i-1] === 0 && rowArray[i+1] === 0) {
-            sides |= NOT_BEFORE_OR_AFTER;
+            // neither before or after
+            sides |= FRONT_RIGHT|FRONT_TOP|FRONT_BOTTOM|BACK_RIGHT;
           } else if (rowArray[i-1] === 0 && rowArray[i+1] === 1) {
-            sides |= AFTER_NOT_BEFORE
+            // after but not before
+            sides |= FRONT_RIGHT|FRONT_TOP|FRONT_BOTTOM
           } else if (rowArray[i-1] === 1 && rowArray[i+1] === 0) {
-            sides |= BEFORE_NOT_AFTER;
+            // before but not after
+            sides |= BACK_RIGHT;
           }
+        }
+        if (center === 1) {
+          var remove = EDGE_TOP|EDGE_TOP|BACK_RIGHT;
+          remove = 255^remove;
+          sides &= remove;
         }
         return sides;
       }
+
       function validateSizeValues() {
         for (var i=0; i<arguments.length; i++) {
           var arg = arguments[i];

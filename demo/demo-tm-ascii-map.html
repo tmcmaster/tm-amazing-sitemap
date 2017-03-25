@@ -44,11 +44,6 @@
             display: inline-block;
             width:100px;
           }
-          /*tm-ascii-map, tm-ascii-viewport, paper-card {
-            vertical-align: top;
-            clear:both;
-            float:left;
-          }*/
           div.components,paper-card {
             vertical-align: top;
             clear:both;
@@ -92,7 +87,7 @@
         <div class="components">
           <tm-ascii-map id="map" data="{{data}}" width="{{width}}" height="{{height}}" x="{{x}}" y="{{y}}"></tm-ascii-map>
           <tm-ascii-viewport id="viewport" data="{{data}}" x-pos="{{x}}" y-pos="{{y}}" viewport-width="[[width]]" viewport-height="[[height]]"></tm-ascii-viewport>
-          <tm-ascii-display id="display" width="50" height="30"></tm-ascii-display>
+          <tm-ascii-display id="display" width="50" height="30" blocks="[[blocks]]"></tm-ascii-display>
         </div>
       </template>
       <script>
@@ -136,11 +131,21 @@
               height: { type: String, notify: true, value: 10 },
               width: { type: String, notify: true, value: 10 },
               x: { type: String, notify: true, value: 1 },
-              y: { type: String, notify: true, value: 1 },
+              y: { type: String, notify: true, value: 7 },
               map: { type: String, notify: true, value: 0 },
+              blocks: {
+                type: Object,
+                notify: true,
+                value: {
+                  left: [1,1,1,0,1],
+                  center: [0,0,0,0,0],
+                  right: [1,1,1,1,1]
+                },
+                computed: '_calculateRows(data,x,y)'
+              }
             },
             observers: [
-              'debug(data)',
+              'debug(blocks)',
               'mapSelected(map)'
             ],
             mapSelected: function(map) {
@@ -158,22 +163,31 @@
             moveLeft: function() { this.$.viewport.moveLeft() },
             keyPressed: function(e) { console.log('Key Pressed: ', e)},
             debug: function(object) {
-              console.log(object);
+              console.log('DEBUG: ', object);
             },
-            _calculateRows: function(data) {
-              var rows = [[],[],[]];
-              if (yPos === 0) {
-                return rows;
-              }
-              for (var r=this.yPos-1; i<0; r--) {
-                if (this.xPos === 0)
-                {
-                  rows[0].push()
+            _calculateRows: function(data,x,y) {
+              console.log('Calculating the new row data after moving.');
+              var rows = {left: [], center: [], right: []};
+              for (var r=y-1; r>y-6 && rows.left.length<5; r--) {
+                if (r > 0) {
+                  if (x < 1) {
+                    rows.left.push(1);
+                  } else {
+                    rows.left.push(parseInt(this.data[r][x-1]));
+                  }
+                  rows.center.push(parseInt(this.data[r][x]))
+                  if (x > (this.data[r].length - 1)) {
+                    rows.right.push(1);
+                  } else {
+                    rows.right.push(parseInt(this.data[r][x+1]));
+                  }
+                } else {
+                  rows.left.push(1);
+                  rows.center.push(1);
+                  rows.right.push(1);
                 }
-                for (var i=0; i<3; i++) {
-                  rows[i].push(this.data[r][this.xPos-1+i]);
-                }
               }
+              return rows;
             },
             ready: function() {
               console.log('Element demo-tm-ascii-map has been created.');
@@ -185,7 +199,7 @@
                 40: function() {self.moveBackward();}
               };
               document.onkeyup = function(e) {
-                console.log('KeyMap: ', self.keyMap);
+                //console.log('KeyMap: ', self.keyMap);
                 if (e.keyCode in self.keyMap) {
                   self.keyMap[e.keyCode]();
                 }
