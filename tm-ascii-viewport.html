@@ -96,7 +96,7 @@
         _canMove: function(newX,newY) {
           if (newX<0 || newX>(this.data.length-1) || newY<0 || newY>(this.data[0].length-1)) {
             return false;
-          } else if (this.data[newY][newX] === '0') {
+          } else if (this.data[newY][newX].ch === '0') {
             return true;
           } else {
             return false;
@@ -148,7 +148,7 @@
         item.type = 'person';
         item.value = '@';
       } else {
-        item.value = (data[y][x] === '1' ? '#' : ' ');
+        item.value = (data[y][x].ch === '1' ? '#' : ' ');
       }
       return item;
     }

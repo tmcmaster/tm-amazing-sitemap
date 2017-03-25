@@ -67,7 +67,7 @@
       observers: [
       ],
       getCharacter: function(data,x,y) {
-        return this.data[x][y];
+        return this.data[x][y].ch;
       },
       printRow: function(top,left,height,width,sizes,statesLeft,statesRight,position) {
         var front = -1;
@@ -192,13 +192,13 @@
         var yPos = 2
 
         // list of block states
-        var statesLeft = this.data[yPos-1];
-        var statesRight = this.data[yPos+1];
+        var statesLeft = this.data[yPos-1].ch;
+        var statesRight = this.data[yPos+1].ch;
 
         this.printRow(y,x,height, width, sizes, statesLeft,statesRight, xPos)
       },
       _testPrintBlock: function() {
-        this.printBlock(2,2,16,6,this.data[2],this.data[3],1,1);
+        this.printBlock(2,2,16,6,this.data[2].ch,this.data[3].ch,1,1);
       },
       ready: function() {
         console.log('Element tm-ascii-view has been created.');

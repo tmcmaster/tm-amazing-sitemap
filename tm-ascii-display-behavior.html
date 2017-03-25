@@ -37,13 +37,13 @@
         if (x < 0 || x >= this.width || y < 0 || y >= this.height) {
           throw new Error("Can't place character outside of display.");
         }
-        this.set('data.' + y + '.' + x, ch);
+        this.set('data.' + y + '.' + x + '.ch', ch);
       },
       getCharacter: function(x,y) {
         if (x < 0 || x >= this.width || y < 0 || y >= this.height) {
           throw new Error("Can't get character from outside of display.");
         }
-        return this.data[y][x];
+        return this.data[y][x].ch;
       },
       setData: function(data) {
         if (data === undefined || data.length < 1) {

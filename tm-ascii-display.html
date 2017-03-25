@@ -129,13 +129,18 @@
           console.log('Clearing the display.')
           for (r in this.data) {
             for (c in this.data[r]) {
-              this.set('data.'+r+'.'+c,' ');
+              this.set('data.'+r+'.'+c+'.ch',' ');
               //this.data[r][c] = ' ';
             }
           }
         },
         setChar: function(x,y,ch) {
-          this.set('fb.'+y+'.'+x, ch);
+          this.set('fb.'+y+'.'+x+'.ch', ch);
+        },
+        setString: function(x,y,string) {
+          for (var i=0; i<string.length; i++) {
+            this.setChar(x+i,y,string[i]);
+          }
         },
         _drawRow: function(blocks) {
           console.log('Attepting to draw the row of blocks.');
@@ -174,6 +179,12 @@
               if (blocks.center[i] === 1) {
                 var blockSides = getBlockSides(blocks.center,i);
                 this._drawBlock(24-block.x,block.y,block.height,block.x*2+1,block.depth,FRONT_LEFT|FRONT_RIGHT|FRONT_TOP|FRONT_BOTTOM|MIRROR);
+                // WIP - not working yet
+                if (blocks.message !== undefined) {
+                  var textX = 24 - Math.floor(blocks.message.length/2);
+                  var textY = block.y-Math.floor((block.height/2));
+                  this.setString(textX,textY,blocks.message);
+                }
                 break;
               }
             }
@@ -253,7 +264,7 @@
           }
         },
         _getCharacterValue: function(x,y,data) {
-          return this.data[y][x];
+          return this.data[y][x].ch;
         },
         _sizeHasChanged: function(width,height) {
           console.log('Width',width,'Height',height);
@@ -262,13 +273,13 @@
           }
 
           console.log('Recreating data');
-          var newData = Array(this.height).fill().map(()=> new Array(this.width).fill(' '));
-          var newFB = Array(this.height).fill().map(()=> new Array(this.width).fill(' '));
+          var newData = Array(this.height).fill().map(()=> new Array(this.width).fill({ch:' '}));
+          var newFB = Array(this.height).fill().map(()=> new Array(this.width).fill({ch:' '}));
           this.set('data', newData);
           this.set('fb', newFB);
         },
         _flushFrameBuffer: function() {
-          var newFB = Array(this.height).fill().map(()=> new Array(this.width).fill(' '));
+          var newFB = Array(this.height).fill().map(()=> new Array(this.width).fill({ch:' '}));
           //var newFB = this.data;
           this.set('data', this.fb);
           //clearData(newFB, ' ');
@@ -285,7 +296,7 @@
       function clearData(array, ch) {
         for (r in array) {
           for (c in array[r]) {
-            array[r][c] = ch;
+            array[r][c].ch = ch;
           }
         }
       }

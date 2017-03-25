@@ -82,11 +82,34 @@
       [ '1', '1', '1', '1', '1', '1', '1', '1', '1', '1' ]
     ];
 
+    const LINKS = [
+        { x:1, y:4, text:'Hi There', url:'https://google.com/'}
+    ];
+
+    function generateMapData() {
+      var mapData = [];
+      for (r in MAP_DATA) {
+        var mapRow = [];
+        for (c in row) {
+          vmapRow.push({ch: MAP_DATA[r][c]});
+        }
+        mapData.push(mapRow);
+      }
+      for (l in LINKS) {
+        var link = LINKS[l];
+        mapData[link.y][link.x].text = link.text;
+        mapData[link.y][link.x].url = link.url;
+      }
+    }
+
+    MESSAGES = {
+      '1-4': 'Hi There'
+    };
     (function(Polymer) {
       Polymer({
         is: 'tm-amazing-sitemap',
         properties: {
-          data: { type:String, notify:true, value: MAP_DATA },
+          data: { type:String, notify:true, computed: '_generateMapData()' },
           height: { type: String, notify: true, value: 10 },
           width: { type: String, notify: true, value: 10 },
           x: { type: String, notify: true, value: 1 },
@@ -101,6 +124,10 @@
         turnRight: function() { this.$.map.rotateLeft(); },
         turnLeft: function() { this.$.map.rotateRight(); },
         keyPressed: function(e) { console.log('Key Pressed: ', e)},
+        _generateMapData: function() {
+          console.log('Generating map data.');
+          return generateMapData();
+        },
         _calculateRows: function(data,x,y) {
           console.log('Calculating the new row data after moving.');
           var rows = {left: [], center: [], right: []};
@@ -109,13 +136,16 @@
               if (x < 1) {
                 rows.left.push(1);
               } else {
-                rows.left.push(parseInt(this.data[r][x-1]));
+                rows.left.push(parseInt(data[r][x-1].ch));
               }
-              rows.center.push(parseInt(this.data[r][x]))
-              if (x > (this.data[r].length - 1)) {
+              rows.center.push(parseInt(data[r][x].ch))
+              if (x > (data[r].length - 1)) {
                 rows.right.push(1);
               } else {
-                rows.right.push(parseInt(this.data[r][x+1]));
+                rows.right.push(parseInt(data[r][x+1].ch));
+              }
+              if (rows.message === undefined && parseInt(data[r][x].ch) === 1) {
+                rows.message = data[r][x].text;
               }
             } else {
               rows.left.push(1);
@@ -123,6 +153,7 @@
               rows.right.push(1);
             }
           }
+
           return rows;
         },
         debug: function(object) {

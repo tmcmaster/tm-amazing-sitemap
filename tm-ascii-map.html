@@ -20,8 +20,8 @@
     <table>
       <template is="dom-repeat" items="[[data]]" as="row" index-as="r">
         <tr>
-          <template is="dom-repeat" items="[[row]]" as="ch" index-as="c">
-            <td class$="type-[[_getCharacterType(ch,r,c,x,y)]]">[[_getCharacterValue(ch,r,c,x,y)]]</td>
+          <template is="dom-repeat" items="[[row]]" as="item" index-as="c">
+            <td class$="type-[[_getCharacterType(item,r,c,x,y)]]">[[_getCharacterValue(item,r,c,x,y)]]</td>
           </template>
         </tr>
       </template>
@@ -63,11 +63,11 @@
           this._rotatePositionRight();
         }
       },
-      _getCharacterValue: function(ch,r,c,x,y) {
+      _getCharacterValue: function(item,r,c,x,y) {
         //console.log('--- Getting Character: ',r,c,ch)
-        return (c === x && r == y ? '@' : (ch === '1' ? '#' : ' '));
+        return (c === x && r == y ? '@' : (item.ch === '1' ? '#' : ' '));
       },
-      _getCharacterType: function(ch,r,c,x,y) {
+      _getCharacterType: function(item,r,c,x,y) {
         //console.log('--- Getting Character: ',r,c,ch)
         return (c === x && r == y ? 'person' : 'plain');
       },
