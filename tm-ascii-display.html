@@ -88,13 +88,11 @@
           },
           width: {
             type: Number,
-            notify: true,
-            value: 3
+            notify: true
           },
           height: {
             type: Number,
-            notify: true,
-            value: 3
+            notify: true
           },
           blocks: {
             type:Object,
@@ -112,7 +110,7 @@
           }
         },
         observers: [
-          'debug(data)',
+          '_dataHasChanged(data)',
           '_sizeHasChanged(width,height)',
           '_blocksChanged(blocks)'
         ],
@@ -135,9 +133,11 @@
           }
         },
         setChar: function(x,y,ch) {
-          this.fb[y][x].ch = ch;
-          this.notifyPath('fb.'+y+'.'+x+'.ch');
-          //this.set('fb.'+y+'.'+x+'.ch', ch);
+          //console.log('-- Before Change: ', this.fb);
+          //this.fb[y][x].ch = ch;
+          //this.notifyPath('fb.'+y+'.'+x+'.ch');
+          this.set('fb.'+y+'.'+x+'.ch', ch);
+          //console.log('-- After Change: ', this.fb);
         },
         setString: function(x,y,string) {
           for (var i=0; i<string.length; i++) {
@@ -166,32 +166,33 @@
             // '4': {x:6,y:16,height:2,width:2,depth:1}
           };
           console.log('-- About to print a number of rows: ' + blocks.left.length)
-          // for (var i=0; i<blocks.left.length; i++) {
-          //   var block = blockSizes[i];
-          //
-          //   if (block.height > 0) {
-          //     console.log('Printing row: ' + (i+1));
-          //     // left side
-          //     var blockSides = getBlockSides(blocks.left,i,blocks.center[i]);
-          //     this._drawBlock(24-block.x,block.y,block.height,block.width,block.depth,blockSides);
-          //     // right side
-          //     var blockSides = getBlockSides(blocks.right,i,blocks.center[i]);
-          //     this._drawBlock(24+block.x,block.y,block.height,block.width,block.depth,blockSides|MIRROR);
-          //     //center
-          //     if (blocks.center[i] === 1) {
-          //       var blockSides = getBlockSides(blocks.center,i);
-          //       this._drawBlock(24-block.x,block.y,block.height,block.x*2+1,block.depth,FRONT_LEFT|FRONT_RIGHT|FRONT_TOP|FRONT_BOTTOM|MIRROR);
-          //       // WIP - not working yet
-          //       if (blocks.message !== undefined) {
-          //         var textX = 24 - Math.floor(blocks.message.length/2);
-          //         var textY = block.y-Math.floor((block.height/2));
-          //         this.setString(textX,textY,blocks.message);
-          //       }
-          //       break;
-          //     }
-          //   }
-          // }
+          for (var i=0; i<blocks.left.length; i++) {
+            var block = blockSizes[i];
 
+            if (block.height > 0) {
+              console.log('Printing row: ' + (i+1));
+              // left side
+              var blockSides = getBlockSides(blocks.left,i,blocks.center[i]);
+              this._drawBlock(24-block.x,block.y,block.height,block.width,block.depth,blockSides);
+              // right side
+              var blockSides = getBlockSides(blocks.right,i,blocks.center[i]);
+              this._drawBlock(24+block.x,block.y,block.height,block.width,block.depth,blockSides|MIRROR);
+              //center
+              if (blocks.center[i] === 1) {
+                var blockSides = getBlockSides(blocks.center,i);
+                this._drawBlock(24-block.x,block.y,block.height,block.x*2+1,block.depth,FRONT_LEFT|FRONT_RIGHT|FRONT_TOP|FRONT_BOTTOM|MIRROR);
+                // WIP - not working yet
+                if (blocks.message !== undefined) {
+                  var textX = 24 - Math.floor(blocks.message.length/2);
+                  var textY = block.y-Math.floor((block.height/2));
+                  this.setString(textX,textY,blocks.message);
+                }
+                break;
+              }
+            }
+          }
+
+          console.log('**** State: ', this.width, this.height);
           this._drawPerson();
           this._flushFrameBuffer();
         },
@@ -275,13 +276,27 @@
           }
 
           console.log('Recreating data');
-          var newData = Array(this.height).fill().map(()=> new Array(this.width).fill({ch:'.'}));
-          var newFB = Array(this.height).fill().map(()=> new Array(this.width).fill({ch:'+'}));
+          // var newData = new Array(this.height).fill().map(()=> new Array(this.width).fill({ch:'.'}));
+          // var newFB = new Array(this.height).fill().map(()=> new Array(this.width).fill({ch:'+'}));
+          var newData = createMatrix(this.height,this.width);
+          var newFB = createMatrix(this.height,this.width);
           this.set('data', newData);
           this.set('fb', newFB);
         },
+        _dataHasChanged: function(data) {
+          console.log('Data has changed.');
+          if (data !== undefined && data.length > 0 && data[0].length > 0) {
+            this.height = data.length;
+            if (data.length === 0) {
+              this.width = 0;
+            } else {
+              this.width = data[0].length;
+            }
+          }
+        },
         _flushFrameBuffer: function() {
-          var newFB = Array(this.height).fill().map(()=> new Array(this.width).fill({ch:','}));
+          //var newFB = new Array(this.height).fill().map(()=> new Array(this.width).fill({ch:','}));
+          var newFB = createMatrix(this.height,this.width);
           //var newFB = this.data;
           this.set('data', this.fb);
           //clearData(newFB, ' ');
@@ -295,6 +310,18 @@
           console.log('Element tm-ascii-display has been created.');
         }
       });
+
+      function createMatrix(height,width) {
+        var matrix = [];
+        for (var h=0; h<height; h++) {
+          var row = [];
+          for (var w=0; w<width; w++) {
+            row.push({ch:' '});
+          }
+          matrix.push(row);
+        }
+        return matrix;
+      }
 
       function clearData(array, ch) {
         for (r in array) {

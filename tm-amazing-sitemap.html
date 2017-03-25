@@ -3,11 +3,12 @@
   <template>
     <style>
       :host {
-        display: block;
+        display: inline-block;
         border: solid lightgrey 1px;
         padding:10px;
       }
       tm-ascii-map,tm-ascii-viewport,tm-ascii-display {
+        display: inline-block;
         //border: solid lightgrey 1px;
         padding:10px;
       }
@@ -83,7 +84,7 @@
     ];
 
     const LINKS = [
-        { x:1, y:4, text:'Hi There', url:'https://google.com/'}
+        { x:3, y:5, text:'Hi There', url:'https://google.com/'}
     ];
 
     function generateMapData() {
@@ -110,7 +111,7 @@
       Polymer({
         is: 'tm-amazing-sitemap',
         properties: {
-          data: { type:String, notify:true, value: MAP_DATA },
+          data: { type: String, notify:true, value: MAP_DATA },
           height: { type: String, notify: true, value: 10 },
           width: { type: String, notify: true, value: 10 },
           x: { type: String, notify: true, value: 1 },

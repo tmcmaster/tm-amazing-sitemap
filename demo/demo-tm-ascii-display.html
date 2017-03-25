@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+
+    <title>Demo tm-ascii-display</title>
+    <meta name="description" content="Demo tm-ascii-display">
+
+    <!-- Mobile -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Chrome / Android -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="black">
+    <link rel="icon" href="icon.png">
+
+    <!-- Safari / iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon-precomposed" href="apple-touch-icon.png">
+
+    <!-- Web Components -->
+    <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+
+    <link rel="import" href="../bower_components/polymer/polymer.html">
+    <link rel="import" href="../bower_components/paper-elements/paper-elements.html">
+    <link rel="import" href="../tm-ascii-display.html">
+
+    <dom-module id="demo-tm-ascii-display">
+      <template>
+        <style>
+          :host {
+            display: block;
+          }
+          paper-card,tm-ascii-display {
+            clear:both;
+            float:left;
+          }
+        </style>
+        <h3>Testing the tm-ascii-desplay element</h3>
+        <tm-ascii-display id="display" data="{{data}}" height="{{h}}" width="{{w}}"></tm-ascii-display>
+        <paper-card>
+          <div class="card-content">
+            <paper-input label="x" value="{{x}}"></paper-input>
+            <paper-input label="y" value="{{y}}"></paper-input>
+            <paper-input label="ch" value="{{ch}}"></paper-input>
+            <paper-input label="height" value="{{h}}"></paper-input>
+            <paper-input label="width" value="{{w}}"></paper-input>
+          </div>
+          <div class="card-actions">
+            <paper-button raised on-tap="_updateCharacter">Set</paper-button>
+            <paper-button raised on-tap="_flushFB">Flush</paper-button>
+          </div>
+        </paper-card>
+      </template>
+      <script>
+        (function(Polymer) {
+          Polymer({
+            is: 'demo-tm-ascii-display',
+            properties: {
+              x: {type:Number,notify:true,value:2},
+              y: {type:Number,notify:true,value:2},
+              h: {type:Number,notify:true},
+              w: {type:Number,notify:true},
+              ch: {type:String,notify:true,value:'W'},
+              data: {
+                type:String,
+                notify:true,
+                value: [
+                  [{ch:'a'},{ch:'b'},{ch:'c'},{ch:'d'},{ch:'e'}],
+                  [{ch:'A'},{ch:'B'},{ch:'C'},{ch:'D'},{ch:'E'}],
+                  [{ch:'1'},{ch:'2'},{ch:'3'},{ch:'4'},{ch:'5'}],
+                  [{ch:'A'},{ch:'B'},{ch:'C'},{ch:'D'},{ch:'E'}],
+                  [{ch:'a'},{ch:'b'},{ch:'c'},{ch:'d'},{ch:'e'}],
+                ]
+              }
+            },
+            observers: [
+              'debug(data)'
+            ],
+            _updateCharacter: function() {
+              this.$.display.setChar(this.x, this.y, this.ch);
+            },
+            _flushFB: function() {
+              this.$.display._flushFrameBuffer();
+            },
+            debug: function(object) {
+              console.log(object);
+            },
+            ready: function() {
+              console.log('Element demo-tm-ascii-display has been created.');
+            }
+          });
+        })(window.Polymer);
+      </script>
+    </dom-module>
+  </head>
+  <body unresolved>
+    <demo-tm-ascii-display></demo-tm-ascii-display>
+  </body>
+</html>
