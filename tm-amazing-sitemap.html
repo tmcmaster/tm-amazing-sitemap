@@ -1,0 +1,150 @@
+
+<dom-module id="tm-amazing-sitemap">
+  <template>
+    <style>
+      :host {
+        display: block;
+        border: solid lightgrey 1px;
+        padding:10px;
+      }
+      tm-ascii-map,tm-ascii-viewport,tm-ascii-display {
+        //border: solid lightgrey 1px;
+        padding:10px;
+      }
+      tm-ascii-viewport,tm-ascii-map,div {
+        clear:both;
+        float:left;
+      }
+      div {
+        width: 180px;
+        //border: solid lightgrey 1px;
+      }
+      table {
+        width: 100%;
+      }
+      td:nth-of-type(1) {
+        text-align: right;
+        padding-right: 3px;
+      }
+      tm-ascii-map {
+        display: none;
+      }
+      h3 {
+        text-align: center;
+      }
+      div.controls {
+        position: absolute;
+        top: 400px;
+        //padding-top: 40px;
+      }
+      div.title {
+        padding-bottom: 20px;
+      }
+    </style>
+    <tm-ascii-map id="map" data="{{data}}" width="{{width}}" height="{{height}}" x="{{x}}" y="{{y}}"></tm-ascii-map>
+    <div class="title">
+      <h3>Sitemap</h3>
+    </div>
+    <tm-ascii-viewport id="viewport" data="{{data}}" x-pos="{{x}}" y-pos="{{y}}" viewport-width="[[width]]" viewport-height="[[height]]"></tm-ascii-viewport>
+    <div class="controls">
+      <table>
+        <tr>
+          <td>Up:</td>
+          <td>Forwards</td>
+        </tr>
+        <tr>
+          <td>Down:</td>
+          <td>Backwards</td>
+        </tr>
+        <tr>
+          <td>Left:</td>
+          <td>Turn Left</td>
+        </tr>
+        <tr>
+          <td>Right:</td>
+          <td>Turn Right</td>
+        </tr>
+      </table>
+    </div>
+    <tm-ascii-display id="display" width="50" height="30" blocks="[[blocks]]"></tm-ascii-display>
+  </template>
+  <script>
+    var MAP_DATA = [
+      [ '1', '1', '1', '1', '1', '1', '1', '1', '1', '1' ],
+      [ '1', '0', '0', '1', '0', '0', '0', '0', '1', '1' ],
+      [ '1', '1', '0', '1', '0', '1', '1', '0', '1', '1' ],
+      [ '1', '1', '0', '0', '0', '0', '1', '0', '1', '1' ],
+      [ '1', '1', '1', '1', '0', '1', '1', '0', '0', '1' ],
+      [ '1', '0', '0', '1', '0', '1', '1', '1', '0', '1' ],
+      [ '1', '0', '1', '0', '0', '1', '1', '1', '0', '1' ],
+      [ '1', '0', '0', '0', '1', '1', '0', '0', '0', '1' ],
+      [ '1', '1', '1', '0', '0', '0', '0', '1', '1', '1' ],
+      [ '1', '1', '1', '1', '1', '1', '1', '1', '1', '1' ]
+    ];
+
+    (function(Polymer) {
+      Polymer({
+        is: 'tm-amazing-sitemap',
+        properties: {
+          data: { type:String, notify:true, value: MAP_DATA },
+          height: { type: String, notify: true, value: 10 },
+          width: { type: String, notify: true, value: 10 },
+          x: { type: String, notify: true, value: 1 },
+          y: { type: String, notify: true, value: 7 },
+          blocks: { type: Object, notify: true, computed: '_calculateRows(data,x,y)' }
+        },
+        observers: [
+          'debug(data)'
+        ],
+        moveForward: function() { this.$.viewport.moveForward(); },
+        moveBackward: function() { this.$.viewport.moveBackward() },
+        turnRight: function() { this.$.map.rotateLeft(); },
+        turnLeft: function() { this.$.map.rotateRight(); },
+        keyPressed: function(e) { console.log('Key Pressed: ', e)},
+        _calculateRows: function(data,x,y) {
+          console.log('Calculating the new row data after moving.');
+          var rows = {left: [], center: [], right: []};
+          for (var r=y-1; r>y-6 && rows.left.length<5; r--) {
+            if (r > 0) {
+              if (x < 1) {
+                rows.left.push(1);
+              } else {
+                rows.left.push(parseInt(this.data[r][x-1]));
+              }
+              rows.center.push(parseInt(this.data[r][x]))
+              if (x > (this.data[r].length - 1)) {
+                rows.right.push(1);
+              } else {
+                rows.right.push(parseInt(this.data[r][x+1]));
+              }
+            } else {
+              rows.left.push(1);
+              rows.center.push(1);
+              rows.right.push(1);
+            }
+          }
+          return rows;
+        },
+        debug: function(object) {
+          console.log(object);
+        },
+        ready: function() {
+          console.log('Element tm-amazing-sitemap has been created.');
+          var self = this;
+          this.keyMap = {
+            37: function() {self.turnLeft();},
+            38: function() {self.moveForward();},
+            39: function() {self.turnRight();},
+            40: function() {self.moveBackward();}
+          };
+          document.onkeyup = function(e) {
+            //console.log('KeyMap: ', self.keyMap);
+            if (e.keyCode in self.keyMap) {
+              self.keyMap[e.keyCode]();
+            }
+          }
+        }
+      });
+    })(window.Polymer);
+  </script>
+</dom-module>

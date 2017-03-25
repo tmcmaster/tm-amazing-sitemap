@@ -43,6 +43,30 @@
       const EDGE_BOTTOM = 64
       const MIRROR = 128;
 
+      const PERSON_DATA = [
+        ["    (#)    ",
+         "   .nHn.   ",
+         "   HHHHH.  ",
+         "   `HH(*N  ",
+         "    HHH  * ",
+         "    NNN    ",
+         "    N/*    ",
+         "    N H    ",
+         "    N      ",
+         "    q,     "],
+
+        ["    (#)    ",
+         "   .nHn.   ",
+         "  .HHHHH   ",
+         "  N*)\HH'  ",
+         " *  HHH    ",
+         "    NNN    ",
+         "    *\N    ",
+         "    H N    ",
+         "      N    ",
+         "     ,q    "]
+      ];
+
       //
       // const BEFORE_AND_AFTER = 0;
       // const BEFORE_NOT_AFTER = BACK_RIGHT;
@@ -80,6 +104,11 @@
               center: [0,0,0,0,0],
               right: [1,1,1,1,1]
             }
+          },
+          person: {
+            type: Number,
+            notify: true,
+            value: 0
           }
         },
         observers: [
@@ -149,7 +178,27 @@
               }
             }
           }
+
+          this._drawPerson();
           this._flushFrameBuffer();
+        },
+        _drawPerson: function() {
+          if (this.person == undefined || this.person === '' || this.person < 0 || this.person > PERSON_DATA.length) {
+            return;
+          }
+
+          // draw the person
+          var currentPerson = PERSON_DATA[this.person];
+          console.log('Drawing the person', currentPerson);
+          for (var i=0; i<currentPerson.length; i++) {
+            var line = currentPerson[i];
+            for (var j=0; j<line.length; j++) {
+              var xPos = Math.floor(j+(this.width/2)-(line.length/2)+0.5);
+              var yPos = Math.floor(i+15+(currentPerson.length/2)+0.5);
+              this.setChar(xPos,yPos,line[j]);
+            }
+          }
+          this.person = 1-this.person;
         },
         _drawBlock: function(x,y,height,width,depth,sides) {
 
@@ -174,7 +223,7 @@
             }
           }
 
-          // top and bottom
+          // front top and bottom
           for (var i=0; i<blockWidth; i++) {
             if ((sides&FRONT_TOP) === FRONT_TOP) {
               this.setChar(x-i*mirror,y-(blockHeight+1),'-');
@@ -184,6 +233,7 @@
             }
           }
 
+          // edge top and bottom
           for (var i=1; i<=blockDepth; i++) {
             var xPos = x+(i*mirror);
 
@@ -195,7 +245,7 @@
             }
           }
 
-          //
+          // back right side
           for (var i=0; i<blockHeight-(blockDepth*2); i++) {
             if ((sides&BACK_RIGHT) === BACK_RIGHT) {
               this.setChar(x+blockDepth*mirror,y-blockDepth-1-i,CHAR_RIGHT_WALL);
@@ -267,7 +317,7 @@
           }
         }
         if (center === 1) {
-          var remove = EDGE_TOP|EDGE_TOP|BACK_RIGHT;
+          var remove = EDGE_TOP|EDGE_BOTTOM|BACK_RIGHT;
           remove = 255^remove;
           sides &= remove;
         }

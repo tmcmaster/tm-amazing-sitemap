@@ -125,7 +125,7 @@
         },
         _getCharacterValue: function(ch,r,c,x,y) {
           //console.log('--- Getting Character: ',r,c,ch)
-          return (c === x && r == y ? '%' : (ch === '1' ? '#' : ' '));
+          return (c === x && r == y ? '@' : (ch === '1' ? '#' : ' '));
         },
         _getCharacterType: function(ch,r,c,x,y) {
           //console.log('--- Getting Character: ',r,c,ch)
@@ -146,7 +146,7 @@
         item.value = ' ';
       } else if (x===xPos && y===yPos) {
         item.type = 'person';
-        item.value = '%';
+        item.value = '@';
       } else {
         item.value = (data[y][x] === '1' ? '#' : ' ');
       }
