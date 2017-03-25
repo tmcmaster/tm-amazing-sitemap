@@ -14,6 +14,9 @@
       td.type-person {
         color: blue;
       }
+      td.type-url {
+        color: orange;
+      }
     </style>
     <table>
       <template is="dom-repeat" items="[[_getViewportData(data,viewportOffsetX,viewportOffsetY,viewportWidth,viewportHeight,xPos,yPos)]]" as="row">
@@ -101,7 +104,6 @@
           } else {
             return false;
           }
-
         },
         _calculateOffsetX: function(xPos,viewportWidth) {
           return (xPos-Math.floor(viewportWidth/2))
@@ -129,7 +131,7 @@
         },
         _getCharacterType: function(ch,r,c,x,y) {
           //console.log('--- Getting Character: ',r,c,ch)
-          return (c === x && r == y ? 'person' : 'plain');
+          return (c === x && r == y ? 'person' : (data[y][x].url === undefined ? 'url' : 'plain'));
         },
         debug: function(object) {
           console.log(object);
@@ -148,7 +150,8 @@
         item.type = 'person';
         item.value = '@';
       } else {
-        item.value = (data[y][x].ch === '1' ? '#' : '.');
+        item.type = (data[y][x].url === undefined ? 'plain' : 'url');
+        item.value = (data[y][x].ch === '1' ? '#' : ' ');
       }
       return item;
     }

@@ -84,7 +84,8 @@
     ];
 
     const LINKS = [
-        { x:3, y:5, text:'Hi There', url:'https://google.com/'}
+        { x:3, y:5, text:'Google', url:'https://google.com/'},
+        { x:1, y:4, text:'Scratch', url:'http://scratch.mit.edu/'}
     ];
 
     function generateMapData() {
@@ -125,6 +126,15 @@
         moveBackward: function() { this.$.viewport.moveBackward() },
         turnRight: function() { this.$.map.rotateLeft(); },
         turnLeft: function() { this.$.map.rotateRight(); },
+        gotoURL: function() {
+          console.log('Attepting to go to a URL.');
+          var url = this.blocks.url;
+          if (url !== undefined) {
+            console.log('Going to URL: ' + url);
+            //document.location = url;
+            window.open(url,'_blank');
+          }
+        },
         keyPressed: function(e) { console.log('Key Pressed: ', e)},
         _generateMapData: function() {
           console.log('Generating map data.');
@@ -148,6 +158,7 @@
               }
               if (rows.message === undefined && parseInt(data[r][x].ch) === 1) {
                 rows.message = data[r][x].text;
+                rows.url = data[r][x].url;
               }
             } else {
               rows.left.push(1);
@@ -168,7 +179,8 @@
             37: function() {self.turnLeft();},
             38: function() {self.moveForward();},
             39: function() {self.turnRight();},
-            40: function() {self.moveBackward();}
+            40: function() {self.moveBackward();},
+            13: function() {self.gotoURL();}
           };
           document.onkeyup = function(e) {
             //console.log('KeyMap: ', self.keyMap);
