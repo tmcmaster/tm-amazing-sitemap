@@ -24,7 +24,7 @@
     <table>
       <template is="dom-repeat" items="[[data]]" as="row" index-as="r">
         <tr>
-          <template is="dom-repeat" items="[[row]]" as="ch" index-as="c">
+          <template is="dom-repeat" items="[[row]]" as="item" index-as="c">
             <td>[[_getCharacterValue(c,r,data)]]</td>
           </template>
         </tr>
@@ -135,7 +135,9 @@
           }
         },
         setChar: function(x,y,ch) {
-          this.set('fb.'+y+'.'+x+'.ch', ch);
+          this.fb[y][x].ch = ch;
+          this.notifyPath('fb.'+y+'.'+x+'.ch');
+          //this.set('fb.'+y+'.'+x+'.ch', ch);
         },
         setString: function(x,y,string) {
           for (var i=0; i<string.length; i++) {
@@ -164,31 +166,31 @@
             // '4': {x:6,y:16,height:2,width:2,depth:1}
           };
           console.log('-- About to print a number of rows: ' + blocks.left.length)
-          for (var i=0; i<blocks.left.length; i++) {
-            var block = blockSizes[i];
-
-            if (block.height > 0) {
-              console.log('Printing row: ' + (i+1));
-              // left side
-              var blockSides = getBlockSides(blocks.left,i,blocks.center[i]);
-              this._drawBlock(24-block.x,block.y,block.height,block.width,block.depth,blockSides);
-              // right side
-              var blockSides = getBlockSides(blocks.right,i,blocks.center[i]);
-              this._drawBlock(24+block.x,block.y,block.height,block.width,block.depth,blockSides|MIRROR);
-              //center
-              if (blocks.center[i] === 1) {
-                var blockSides = getBlockSides(blocks.center,i);
-                this._drawBlock(24-block.x,block.y,block.height,block.x*2+1,block.depth,FRONT_LEFT|FRONT_RIGHT|FRONT_TOP|FRONT_BOTTOM|MIRROR);
-                // WIP - not working yet
-                if (blocks.message !== undefined) {
-                  var textX = 24 - Math.floor(blocks.message.length/2);
-                  var textY = block.y-Math.floor((block.height/2));
-                  this.setString(textX,textY,blocks.message);
-                }
-                break;
-              }
-            }
-          }
+          // for (var i=0; i<blocks.left.length; i++) {
+          //   var block = blockSizes[i];
+          //
+          //   if (block.height > 0) {
+          //     console.log('Printing row: ' + (i+1));
+          //     // left side
+          //     var blockSides = getBlockSides(blocks.left,i,blocks.center[i]);
+          //     this._drawBlock(24-block.x,block.y,block.height,block.width,block.depth,blockSides);
+          //     // right side
+          //     var blockSides = getBlockSides(blocks.right,i,blocks.center[i]);
+          //     this._drawBlock(24+block.x,block.y,block.height,block.width,block.depth,blockSides|MIRROR);
+          //     //center
+          //     if (blocks.center[i] === 1) {
+          //       var blockSides = getBlockSides(blocks.center,i);
+          //       this._drawBlock(24-block.x,block.y,block.height,block.x*2+1,block.depth,FRONT_LEFT|FRONT_RIGHT|FRONT_TOP|FRONT_BOTTOM|MIRROR);
+          //       // WIP - not working yet
+          //       if (blocks.message !== undefined) {
+          //         var textX = 24 - Math.floor(blocks.message.length/2);
+          //         var textY = block.y-Math.floor((block.height/2));
+          //         this.setString(textX,textY,blocks.message);
+          //       }
+          //       break;
+          //     }
+          //   }
+          // }
 
           this._drawPerson();
           this._flushFrameBuffer();
@@ -273,20 +275,21 @@
           }
 
           console.log('Recreating data');
-          var newData = Array(this.height).fill().map(()=> new Array(this.width).fill({ch:' '}));
-          var newFB = Array(this.height).fill().map(()=> new Array(this.width).fill({ch:' '}));
+          var newData = Array(this.height).fill().map(()=> new Array(this.width).fill({ch:'.'}));
+          var newFB = Array(this.height).fill().map(()=> new Array(this.width).fill({ch:'+'}));
           this.set('data', newData);
           this.set('fb', newFB);
         },
         _flushFrameBuffer: function() {
-          var newFB = Array(this.height).fill().map(()=> new Array(this.width).fill({ch:' '}));
+          var newFB = Array(this.height).fill().map(()=> new Array(this.width).fill({ch:','}));
           //var newFB = this.data;
           this.set('data', this.fb);
           //clearData(newFB, ' ');
           this.set('fb', newFB);
+          this.notifyPath('data');
         },
         debug: function(object) {
-          console.log(object);
+          console.log('------- DEBUG -------', object);
         },
         ready: function() {
           console.log('Element tm-ascii-display has been created.');

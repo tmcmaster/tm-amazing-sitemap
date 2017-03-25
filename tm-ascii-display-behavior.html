@@ -8,16 +8,11 @@
           type: Array,
           notify: true,
           value: [
-            ['A','B','C'],
-            ['a','b','c'],
-            ['1','2','3']
+            [{ch:'A'},{ch:'B'},{ch:'C'}],
+            [{ch:'a'},{ch:'b'},{ch:'c'}],
+            [{ch:'1'},{ch:'2'},{ch:'3'}]
           ]
         },
-        // viewport: {
-        //   type: Array,
-        //   notify: true,
-        //   computed: '_calculateViewPort(data,width,height,x,y)'
-        // },
         width: {
           type: Number,
           notify: true,
@@ -63,7 +58,7 @@
         var oldData = this.data;
         // create the new array
         for (var i=0; i<height; i++) {
-          var newRow = new Array(parseInt(width)).fill(' ');
+          var newRow = new Array(parseInt(width)).fill({ch:'+'});
           newData.push(newRow);
         }
         // Copy old data over new data

@@ -69,7 +69,7 @@
     <tm-ascii-display id="display" width="50" height="30" blocks="[[blocks]]"></tm-ascii-display>
   </template>
   <script>
-    var MAP_DATA = [
+    var MAP_BLOCKS = [
       [ '1', '1', '1', '1', '1', '1', '1', '1', '1', '1' ],
       [ '1', '0', '0', '1', '0', '0', '0', '0', '1', '1' ],
       [ '1', '1', '0', '1', '0', '1', '1', '0', '1', '1' ],
@@ -88,10 +88,10 @@
 
     function generateMapData() {
       var mapData = [];
-      for (r in MAP_DATA) {
+      for (r in MAP_BLOCKS) {
         var mapRow = [];
-        for (c in row) {
-          vmapRow.push({ch: MAP_DATA[r][c]});
+        for (c in MAP_BLOCKS[r]) {
+          mapRow.push({ch: MAP_BLOCKS[r][c]});
         }
         mapData.push(mapRow);
       }
@@ -100,16 +100,17 @@
         mapData[link.y][link.x].text = link.text;
         mapData[link.y][link.x].url = link.url;
       }
+
+      return mapData;
     }
 
-    MESSAGES = {
-      '1-4': 'Hi There'
-    };
+    MAP_DATA = generateMapData();
+
     (function(Polymer) {
       Polymer({
         is: 'tm-amazing-sitemap',
         properties: {
-          data: { type:String, notify:true, computed: '_generateMapData()' },
+          data: { type:String, notify:true, value: MAP_DATA },
           height: { type: String, notify: true, value: 10 },
           width: { type: String, notify: true, value: 10 },
           x: { type: String, notify: true, value: 1 },
