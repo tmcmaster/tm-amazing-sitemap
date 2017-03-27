@@ -1,6 +1,6 @@
 {
-  "name": "tm-ascii-console",
-  "main": "tm-ascii-console.html",
+  "name": "tm-amazing-sitemap",
+  "main": "tm-amazing-sitemap.html",
   "dependencies": {
     "polymer": "Polymer/polymer#^1.4.0",
     "iron-elements": "^1.0.10",
