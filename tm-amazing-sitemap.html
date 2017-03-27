@@ -1,4 +1,3 @@
-
 <dom-module id="tm-amazing-sitemap">
   <template>
     <style>
@@ -55,11 +54,7 @@
       }
     </style>
     <tm-retro-backgroud></tm-retro-backgroud>
-
     <tm-ascii-map id="map" data="{{data}}" width="{{width}}" height="{{height}}" x="{{x}}" y="{{y}}"></tm-ascii-map>
-    <!-- <div class="title">
-      <h3>Sitemap</h3>
-    </div> -->
     <tm-ascii-viewport id="viewport" data="{{data}}" x-pos="{{x}}" y-pos="{{y}}" viewport-width="[[width]]" viewport-height="[[height]]"></tm-ascii-viewport>
     <div class="controls">
       <table>
@@ -197,7 +192,6 @@
             13: function() {self.gotoURL();}
           };
           document.onkeyup = function(e) {
-            //console.log('KeyMap: ', self.keyMap);
             if (e.keyCode in self.keyMap) {
               self.keyMap[e.keyCode]();
             }
