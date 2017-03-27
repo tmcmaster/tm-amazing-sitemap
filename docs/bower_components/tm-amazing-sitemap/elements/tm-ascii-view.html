@@ -1,0 +1,211 @@
+<link rel="import" href="tm-ascii-display-behavior.html">
+
+<dom-module id="tm-ascii-view">
+  <template>
+    <style>
+      :host {
+        display: inline-block;
+      }
+      table {
+        /*width:200px;
+        height:200px;*/
+      }
+      td {
+        width:12px;
+        height:12px;
+        text-align: center;
+        vertical-align: center;
+      }
+    </style>
+
+    <table>
+      <template is="dom-repeat" items="[[data]]" as="row" index-as="r">
+        <tr>
+          <template is="dom-repeat" items="[[row]]" as="ch" index-as="c">
+            <td>[[getCharacter(data.*,r,c)]]</td>
+          </template>
+        </tr>
+      </template>
+    </table>
+  </template>
+
+  <script>
+    var sizes = [5,4,3,3,2];
+
+    var person1 = ["    (#)    ",
+                   "   .nHn.   ",
+                   "   HHHHH.  ",
+                   "   `HH(*N  ",
+                   "    HHH  * ",
+                   "    NNN    ",
+                   "    N/*    ",
+                   "    N H    ",
+                   "    N      ",
+                   "    q,     "];
+
+    var person2 = ["    (#)    ",
+                   "   .nHn.   ",
+                   "  .HHHHH   ",
+                   "  N*)\HH'  ",
+                   " *  HHH    ",
+                   "    NNN    ",
+                   "    *\N    ",
+                   "    H N    ",
+                   "      N    ",
+                   "     ,q    "];
+
+    var person = [person1,person2];
+
+
+    Polymer({
+      is: 'tm-ascii-view',
+      properties: {
+      },
+      behaviors: [
+        Polymer.TM.AsciiDisplayBehavior
+      ],
+      observers: [
+      ],
+      getCharacter: function(data,x,y) {
+        return this.data[x][y].ch;
+      },
+      printRow: function(top,left,height,width,sizes,statesLeft,statesRight,position) {
+        var front = -1;
+
+        var beforeLeft = 0;
+        var beforeRight = 0;
+
+        if (position !== 0) {
+            beforeLeft = statesLeft[position-1];
+            beforeRight = statesRight[position-1];
+        }
+
+        var size = 10; //sizes[0]-1;
+
+        var x = 0;
+        var right = left + width;
+
+        var j = 0;
+        var maxpos = position + 5;
+        if (maxpos > statesLeft.length) {
+            maxpos = statesLeft.length;
+        }
+
+        for (var i=position; i<maxpos; i++)
+        {
+            var front = size - 1;
+            var size = sizes[j];
+            j += 1;
+
+            var afterLeft = 0;
+            var afterRight = 0;
+
+            if ((i + 1) < maxpos)
+            {
+                afterLeft = statesLeft[i+1];
+                afterRight = statesRight[i+1];
+            }
+
+            //stdscr.addstr(3+j,20, "j(%d) Before(%d), After(%d)" % (j,beforeLeft, afterLeft))
+
+            if (statesLeft[i] === 1) {
+                printBlock(top, left+x, height, size, beforeLeft, afterLeft, front,1);
+            }
+            if (statesRight[i] === 1) {
+                printBlock(top, right-x, height, size, beforeRight, afterRight, front,-1);
+            }
+
+            if (i < (maxpos - 1)) {
+                beforeLeft = statesLeft[i];
+                beforeRight = statesRight[i];
+                top = top + size;
+                x = x + size;
+                height = height - (2 * size);
+            }
+          }
+
+          // draw the person
+          var currentPerson = person[position%2];
+          console.log('Drawing the person', currentPerson);
+          for (var i=0; i<currentPerson.length; i++) {
+            var line = currentPerson[i];
+            console.log('====> ' + line);
+            for (var j=0; j<line.length; j++) {
+              var xPos = Math.floor(j+(width/2)-(line.length/2)+0.5);
+              var yPos = Math.floor(i+(currentPerson.length/2)+0.5);
+              this.setChar(yPos,xPos,line[j]);
+            }
+          }
+      },
+      printBlock: function(top,x,height,width,before,after,front,mirror) {
+        var h1 = height;
+        var h2 = h1 - width*2+2;
+
+        var blockFront = "_";
+        var blockSide = (mirror === 1 ? "]" : "[");
+        var blockTop = (mirror === 1 ? "\\" : "/");
+        var blockBottom = (mirror === 1 ? "/" : "\\");
+
+        // there is a space in front of the block
+        if (before === 0) {
+            for (var i=0; i<front; i++) {
+              this.setChar(top-2, x-i*mirror, blockFront);
+              this.setChar(top+h1-2, x-i*mirror, blockFront);
+            }
+            for (var i=0; i<h1; i++) {
+              this.setChar(top+i-1, x, blockSide);
+            }
+        }
+
+        // block top
+        for (var i=0; i<(width-1); i++) {
+          this.setChar(top+i-1, x+(i+1)*mirror, blockTop);
+        }
+
+        if (after === 0) {
+          // far side
+          for (var i=0; i<h2; i++) {
+            this.setChar(top+width-2+i, x+width*mirror, blockSide);
+          }
+        } else {
+          // far side bottom and top
+          this.setChar(top+width-2, x+width*mirror, blockTop);
+          this.setChar(top+h1-width-1, x+width*mirror, blockBottom);
+        }
+
+        // block bottom
+        for (var i=0; i<(width-1); i++) {
+          this.setChar(top+h1-2-i, x+(i+1)*mirror, blockBottom);
+        }
+      },
+      setChar: function(y,x,char) {
+        this.setCharacter(x,y,char);
+      },
+      _testPrintRow: function() {
+        var x = 15;
+        var y = 5;
+        var width = 30;
+        var height = 35;
+
+        // Person start position
+        var xPos = 2
+        var yPos = 2
+
+        // list of block states
+        var statesLeft = this.data[yPos-1].ch;
+        var statesRight = this.data[yPos+1].ch;
+
+        this.printRow(y,x,height, width, sizes, statesLeft,statesRight, xPos)
+      },
+      _testPrintBlock: function() {
+        this.printBlock(2,2,16,6,this.data[2].ch,this.data[3].ch,1,1);
+      },
+      ready: function() {
+        console.log('Element tm-ascii-view has been created.');
+        //this.setData(new Array(10).fill(new Array(10).fill('A')));
+        this._testPrintBlock();
+        //this._testPrintRow();
+      }
+    });
+  </script>
+</dom-module>
