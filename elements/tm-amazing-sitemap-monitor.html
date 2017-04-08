@@ -1,0 +1,46 @@
+
+<dom-module id="tm-amazing-sitemap-monitor">
+  <template>
+    <style>
+      :host {
+        box-sizing: border-box;
+        display: inline-block;
+        position: relative;
+        width:100%;
+        height:100%;
+      }
+      img {
+        width:100%;
+        height:100%;
+      }
+      tm-ascii-display {
+        position: absolute;
+        top: 9%;
+        left: 10%;
+        width: 80%;
+        height: 67%;
+      }
+    </style>
+    <img src="../images/retro-monitor.png" alt=""/>
+    <tm-ascii-display id="display" width="50" height="30" blocks="[[blocks]]"></tm-ascii-display>
+  </template>
+  <script>
+    (function(Polymer) {
+      Polymer({
+        is: 'tm-amazing-sitemap-monitor',
+        properties: {
+          blocks: { type: Object, notify: true }
+        },
+        observers: [
+          'debug(blocks)'
+        ],
+        debug: function(object) {
+          console.log('DEBUG TM-AMAZING-SITEMAP-MONITOR: ', object);
+        },
+        ready: function() {
+          console.log('Element tm-amazing-sitemap-monitor has been created.');
+        }
+      });
+    })(window.Polymer);
+  </script>
+</dom-module>

@@ -3,15 +3,20 @@
 <link rel="import" href="elements/tm-ascii-map.html">
 <link rel="import" href="elements/tm-ascii-display.html">
 <link rel="import" href="elements/tm-retro-background.html">
-
+<link rel="import" href="elements/tm-ascii-controls.html">
+<link rel="import" href="elements/tm-amazing-sitemap-gps.html">
+<link rel="import" href="elements/tm-amazing-sitemap-monitor.html">
+<link rel="import" href="elements/tm-amazing-sitemap-comments.html">
 
 <dom-module id="tm-amazing-sitemap">
   <template>
     <style>
       :host {
+        box-sizing: border-box;
         display: inline-block;
         border: solid lightgrey 1px;
-        padding:10px;
+        //padding:10px;
+        height:100%;
       }
       tm-ascii-map,tm-ascii-viewport,tm-ascii-display {
         display: inline-block;
@@ -59,8 +64,34 @@
       div.title {
         padding-bottom: 20px;
       }
+
+      tm-amazing-sitemap-gps {
+        margin:0px;
+        padding:0px;
+        vertical-align: top;
+        //border:solid black 2px;
+        width:30%;
+        float:left;
+      }
+      tm-amazing-sitemap-monitor {
+        margin:0px;
+        padding:0px;
+        vertical-align: top;
+        //border: solid blue 1px;
+        width:70%;
+      }
+      tm-amazing-sitemap-comments {
+        clear:both;
+        float:left;
+        width:30%;
+      }
     </style>
-    <tm-retro-backgroud></tm-retro-backgroud>
+    <tm-ascii-map id="map" data="{{data}}" width="{{width}}" height="{{height}}" x="{{x}}" y="{{y}}"></tm-ascii-map>
+    <tm-amazing-sitemap-gps id="gps" width="[[width]]" height="[[height]]" x="{{x}}" y="{{y}}" data="{{data}}"></tm-amazing-sitemap-gps>
+    <tm-amazing-sitemap-comments></tm-amazing-sitemap-comments>
+    <tm-amazing-sitemap-monitor blocks="[[blocks]]"></tm-amazing-sitemap-monitor>
+
+    <!-- <tm-retro-backgroud></tm-retro-backgroud>
     <tm-ascii-map id="map" data="{{data}}" width="{{width}}" height="{{height}}" x="{{x}}" y="{{y}}"></tm-ascii-map>
     <tm-ascii-viewport id="viewport" data="{{data}}" x-pos="{{x}}" y-pos="{{y}}" viewport-width="[[width]]" viewport-height="[[height]]"></tm-ascii-viewport>
     <div class="controls">
@@ -83,7 +114,7 @@
         </tr>
       </table>
     </div>
-    <tm-ascii-display id="display" width="50" height="30" blocks="[[blocks]]"></tm-ascii-display>
+    <tm-ascii-display id="display" width="50" height="30" blocks="[[blocks]]"></tm-ascii-display> -->
   </template>
   <script>
     var MAP_BLOCKS = [
@@ -136,10 +167,10 @@
           blocks: { type: Object, notify: true, computed: '_calculateRows(data,x,y)' }
         },
         observers: [
-          'debug(data)'
+          'debug(blocks)'
         ],
-        moveForward: function() { this.$.viewport.moveForward(); },
-        moveBackward: function() { this.$.viewport.moveBackward() },
+        moveForward: function() { this.$.gps.moveForward(); },
+        moveBackward: function() { this.$.gps.moveBackward() },
         turnRight: function() { this.$.map.rotateLeft(); },
         turnLeft: function() { this.$.map.rotateRight(); },
         gotoURL: function() {
@@ -186,7 +217,7 @@
           return rows;
         },
         debug: function(object) {
-          console.log(object);
+          console.log('DEBUG TM-AMAZING-SITEMAP: ', object);
         },
         ready: function() {
           console.log('Element tm-amazing-sitemap has been created.');

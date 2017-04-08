@@ -1,0 +1,67 @@
+
+<dom-module id="tm-ascii-controls">
+  <template>
+    <style>
+      :host {
+        display: inline-block;
+        font-size: 0.9vw;
+      }
+      table {
+        width: 100%;
+        height: 100%;
+
+        //border: solid red 1px;
+      }
+      td:nth-of-type(1) {
+        text-align: right;
+        padding-right: 3px;
+      }
+    </style>
+    <table>
+      <tr>
+        <td>Up:</td>
+        <td>Forwards</td>
+      </tr>
+      <tr>
+        <td>Down:</td>
+        <td>Backwards</td>
+      </tr>
+      <tr>
+        <td>Left:</td>
+        <td>Turn Left</td>
+      </tr>
+      <tr>
+        <td>Right:</td>
+        <td>Turn Right</td>
+      </tr>
+      <tr>
+        <td>Enter:</td>
+        <td>Goto Page</td>
+      </tr>
+    </table>
+  </template>
+  <script>
+    (function(Polymer) {
+      Polymer({
+        is: 'tm-ascii-controls',
+        properties: {
+          options: { type:Array, notify:true, value: [
+            { key: 'Up', desc: 'Forward', ch: 38, action: this._placeHolderAction }
+          ]}
+        },
+        observers: [
+          'debug(prop)'
+        ],
+        _placeHolderAction: function() {
+          console.log('The selected action does not have a method assigned to is yet.');
+        },
+        debug: function(object) {
+          console.log(object);
+        },
+        ready: function() {
+          console.log('Element tm-ascii-controls has been created.');
+        }
+      });
+    })(window.Polymer);
+  </script>
+</dom-module>

@@ -3,7 +3,27 @@
   <template>
     <style>
       :host {
-        display: inline-block;
+        display: flex;
+        font-size: 0.7vw;
+        //border: solid red 1px;
+      }
+      table {
+        margin: auto auto;
+        //border: solid green 1px;
+        width: 70%;
+        height: 90%;
+      }
+      td {
+        height:0.7vw;
+        width:0.7vh;
+        color:white;
+        font-weight: bold;
+        text-align: center;
+        vertical-align: center;
+        //border: solid black 1px;
+      }
+      /*:host {
+        display: flex;
       }
       tr {
         padding:0px;
@@ -21,7 +41,7 @@
       }
       td.type-person {
         color: blue;
-      }
+      }*/
     </style>
     <table>
       <template is="dom-repeat" items="[[data]]" as="row" index-as="r">
